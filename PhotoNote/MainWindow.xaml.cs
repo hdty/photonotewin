@@ -64,7 +64,25 @@ public partial class MainWindow : Window
         // 入力のたびに書き込むのではなく、手が止まってから保存する
         _saveTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1.5) };
         _saveTimer.Tick += (_, _) => { _saveTimer.Stop(); SaveNotes(); };
+
+        SourceInitialized += (_, _) => FitToWorkArea();
     }
+
+    /// <summary>
+    /// タスクバーを除いた作業領域に収まるようウィンドウを縮める。
+    /// 画面の小さいノートPCでも下端が隠れないようにするため。
+    /// </summary>
+    private void FitToWorkArea()
+    {
+        var work = SystemParameters.WorkArea;
+        if (Width > work.Width) Width = work.Width;
+        if (Height > work.Height) Height = work.Height;
+        // 縮めた分だけ中央に置き直す
+        Left = work.Left + (work.Width - Width) / 2;
+        Top = work.Top + (work.Height - Height) / 2;
+    }
+
+    private void Exit_Click(object sender, RoutedEventArgs e) => Close();
 
     // ===================== 写真選び画面 =====================
 
@@ -446,6 +464,31 @@ public partial class MainWindow : Window
         PageCountLabel.Text = $"全 {doc.Pages.Count} ページ";
     }
 
+    /// <summary>
+    /// 印刷の画質だけ写真向けの既定にする。
+    ///
+    /// 用紙種類(PageMediaType)は意図的に設定しない。Windows の標準の種類には
+    /// 「写真用紙ライト<薄手光沢>」のようなメーカー独自の紙がなく、近い値
+    /// (PhotographicGlossy 等)を入れると、利用者がプリンタの印刷設定で選んだ
+    /// 正しい用紙を、インク量の違う別の用紙で上書きしてしまうため。
+    /// 用紙種類はプリンタ側の設定に任せる。
+    /// </summary>
+    private static void ApplyPhotoQuality(PrintTicket ticket, PrintQueue? queue)
+    {
+        var caps = queue?.GetPrintCapabilities();
+
+        // 画質: Photographic が無ければ High。どちらも無ければ触らない
+        // (非対応の値を入れるとドライバの検証で既定へ巻き戻されるため)
+        foreach (var quality in new[] { OutputQuality.Photographic, OutputQuality.High })
+        {
+            if (caps?.OutputQualityCapability.Contains(quality) == true)
+            {
+                ticket.OutputQuality = quality;
+                break;
+            }
+        }
+    }
+
     private void PrintNow_Click(object sender, RoutedEventArgs e)
     {
         if (!_printImagesLoaded) return;
@@ -466,6 +509,9 @@ public partial class MainWindow : Window
             ticket.PageMediaSize = paper.MediaName is { } name
                 ? new PageMediaSize(name, paper.WidthMm * mm, paper.HeightMm * mm)
                 : new PageMediaSize(paper.WidthMm * mm, paper.HeightMm * mm);
+            // 写真をきれいに刷るため、用紙種類と画質の既定を写真向けにする
+            // (普通紙に刷りたいときはダイアログで変えられる)
+            ApplyPhotoQuality(ticket, dialog.PrintQueue);
         }
         catch
         {

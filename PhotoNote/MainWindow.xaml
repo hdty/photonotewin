@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="PhotoNote"
         Icon="Assets/PhotoNote.ico"
-        Width="1150" Height="780"
-        MinWidth="960" MinHeight="640"
+        Width="1100" Height="740"
+        MinWidth="900" MinHeight="560"
         WindowStartupLocation="CenterScreen"
         FontFamily="Meiryo UI" FontSize="16"
         Closing="Window_Closing">
@@ -17,6 +17,8 @@
                 <DockPanel Margin="12,10">
                     <Button x:Name="OpenFolderButton" Content="📂 フォルダを開く" FontSize="18" Padding="16,10"
                             Click="OpenFolder_Click"/>
+                    <Button x:Name="ExitButton" DockPanel.Dock="Right" Content="✕ 終了" FontSize="18" Padding="16,10"
+                            Margin="12,0,0,0" Click="Exit_Click"/>
                     <Button x:Name="PrintButton" DockPanel.Dock="Right" Content="🖨 印刷する" FontSize="18" Padding="20,10"
                             FontWeight="Bold" IsEnabled="False" Click="Print_Click"/>
                     <Button x:Name="SelectAllButton" Content="すべて選択" Padding="12,8" Margin="16,0,0,0"

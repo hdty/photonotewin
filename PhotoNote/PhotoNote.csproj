@@ -8,11 +8,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>PhotoNote</RootNamespace>
     <AssemblyName>PhotoNote</AssemblyName>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Product>PhotoNote</Product>
     <Copyright>© 2026 HidéToys</Copyright>
     <Description>写真にメモを付けて印刷するソフト</Description>
     <NeutralLanguage>ja-JP</NeutralLanguage>
+    <!-- バージョン表記にコミットハッシュを付けない -->
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <!-- 会社名(作者)欄は使わない。著作権表示のみ -->
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <ApplicationIcon>Assets\PhotoNote.ico</ApplicationIcon>
