@@ -4,79 +4,55 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Runtime.InteropServices;
 
-public static class IconBuilder
+/// <summary>
+/// PhotoNoteWin のアプリアイコン。<b>形状の唯一の定義</b>。
+///
+/// 図案の考え方（ヒエラルキー）:
+/// このアプリは写真を撮らない。既にある写真に「ひとことメモ」を付けて印刷する。
+/// だから道具（カメラ・ペン）ではなく成果物を描く。主役は大きな写真カード、
+/// メモはその右下に重なる小さなバッジとして従属させる。
+///
+/// 座標は 96x96 のグリッドで定義する（Material Symbols の 24px グリッド x4）。
+/// 寸法の根拠と全座標は docs/ICON.md にある。
+/// </summary>
+public static class PhotoNoteMark
 {
-    // 市松模様の背景(明るいグレー)を外周からのflood-fillで透過にする
-    static Bitmap RemoveBackground(Bitmap src)
+    /// <summary>設計グリッドの一辺。</summary>
+    public const float Grid = 96f;
+
+    // ブランドカラー（HidéToys）。ロゴの原色をそのまま使う。
+    public static readonly Color Ink = Color.FromArgb(0x13, 0x25, 0x3F);        // インクネイビー
+    public static readonly Color Water = Color.FromArgb(0xA3, 0xD8, 0xE1);      // 淡い水色
+    public static readonly Color PaleSakura = Color.FromArgb(0xE8, 0xAF, 0xCF); // 薄桜色
+
+    // 紺プレートの縁（水色を alpha 62% で）。暗いタスクバーは影も下地も付けないので、
+    // これが無いとプレートの角丸が背景に溶けて輪郭が消える。
+    static readonly Color Rim = Color.FromArgb(0x9E, 0xA3, 0xD8, 0xE1);
+    const float PlateRadius = 22f;
+    const float RimInset = 1.2f;
+    const float RimRadius = 20.8f;
+    const float RimWidth = 2.4f;
+
+    // 写真カード（主役）。
+    static readonly RectangleF Card = new RectangleF(19f, 18f, 58f, 46f);
+    const float CardRadius = 6f;
+    static readonly PointF SunCenter = new PointF(63f, 29f);
+    const float SunRadius = 4.5f;
+
+    // メモのバッジ（従）。カードの右下から対角にはみ出す。
+    // Gap は地色で塗る「逃げ」。バッジをカードから浮かせて重なりを濁らせない。
+    // プレートが不透明なので、合成モードを使わず地色でそのまま塗ればよい。
+    static readonly RectangleF BadgeGap = new RectangleF(42f, 47f, 42f, 30f);
+    const float BadgeGapRadius = 7f;
+    static readonly RectangleF Badge = new RectangleF(45f, 50f, 36f, 24f);
+    const float BadgeRadius = 5f;
+    const float MemoLineWidth = 3.5f;
+
+    /// <summary>角丸矩形のパス。</summary>
+    public static GraphicsPath RoundedRect(RectangleF r, float radius)
     {
-        int w = src.Width, h = src.Height;
-        var bmp = new Bitmap(w, h, PixelFormat.Format32bppArgb);
-        using (var g = Graphics.FromImage(bmp)) g.DrawImage(src, 0, 0, w, h);
-
-        var rect = new Rectangle(0, 0, w, h);
-        var data = bmp.LockBits(rect, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
-        int stride = data.Stride;
-        var px = new byte[stride * h];
-        Marshal.Copy(data.Scan0, px, 0, px.Length);
-
-        Func<int, int, bool> isBg = (x, y) =>
-        {
-            int i = y * stride + x * 4;
-            byte b = px[i], gch = px[i + 1], r = px[i + 2], a = px[i + 3];
-            if (a == 0) return false;
-            int mx = Math.Max(r, Math.Max(gch, b)), mn = Math.Min(r, Math.Min(gch, b));
-            return mn >= 220 && (mx - mn) <= 16;
-        };
-
-        var visited = new bool[w * h];
-        var queue = new Queue<int>();
-        Action<int, int> push = (x, y) =>
-        {
-            if (x < 0 || y < 0 || x >= w || y >= h) return;
-            int idx = y * w + x;
-            if (visited[idx]) return;
-            visited[idx] = true;
-            if (isBg(x, y)) queue.Enqueue(idx);
-        };
-        for (int x = 0; x < w; x++) { push(x, 0); push(x, h - 1); }
-        for (int y = 0; y < h; y++) { push(0, y); push(w - 1, y); }
-        while (queue.Count > 0)
-        {
-            int idx = queue.Dequeue();
-            int x = idx % w, y = idx / w;
-            px[y * stride + x * 4 + 3] = 0; // alpha = 0
-            push(x - 1, y); push(x + 1, y); push(x, y - 1); push(x, y + 1);
-        }
-
-        Marshal.Copy(px, 0, data.Scan0, px.Length);
-        bmp.UnlockBits(data);
-        return bmp;
-    }
-
-    static Rectangle FindBounds(Bitmap bmp)
-    {
-        int w = bmp.Width, h = bmp.Height;
-        int minX = w, minY = h, maxX = -1, maxY = -1;
-        var data = bmp.LockBits(new Rectangle(0, 0, w, h), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-        var px = new byte[data.Stride * h];
-        Marshal.Copy(data.Scan0, px, 0, px.Length);
-        for (int y = 0; y < h; y++)
-            for (int x = 0; x < w; x++)
-                if (px[y * data.Stride + x * 4 + 3] > 24)
-                {
-                    if (x < minX) minX = x; if (x > maxX) maxX = x;
-                    if (y < minY) minY = y; if (y > maxY) maxY = y;
-                }
-        bmp.UnlockBits(data);
-        return maxX < 0 ? new Rectangle(0, 0, w, h)
-                        : Rectangle.FromLTRB(minX, minY, maxX + 1, maxY + 1);
-    }
-
-    static GraphicsPath RoundedRect(RectangleF r, float radius)
-    {
-        float d = radius * 2;
+        float d = radius * 2f;
         var path = new GraphicsPath();
         path.AddArc(r.X, r.Y, d, d, 180, 90);
         path.AddArc(r.Right - d, r.Y, d, d, 270, 90);
@@ -86,68 +62,199 @@ public static class IconBuilder
         return path;
     }
 
-    static Color Lighten(Color c, float t) => Color.FromArgb(255,
-        (int)(c.R + (255 - c.R) * t),
-        (int)(c.G + (255 - c.G) * t),
-        (int)(c.B + (255 - c.B) * t));
-
-    public static void Build(string srcPath, string icoPath, string previewPng)
+    /// <summary>
+    /// 山。底辺 y=58 はカード下辺 y=64 から 6 浮かせてある。
+    /// 下辺まで届かせると、山（インク）と地（同じインク）が繋がって
+    /// カードの底が抜け、写真に見えなくなる。
+    /// </summary>
+    static GraphicsPath Mountain()
     {
-        var blue = Lighten(Color.FromArgb(163, 216, 225), 0.20f); // ロゴの水色
-        var pink = Lighten(Color.FromArgb(232, 175, 207), 0.20f); // ロゴの桜色
-
-        using var raw = new Bitmap(srcPath);
-        using var cut = RemoveBackground(raw);
-        var bounds = FindBounds(cut);
-
-        int[] sizes = { 16, 24, 32, 48, 64, 256 };
-        var pngs = new List<byte[]>();
-        foreach (var size in sizes)
+        var path = new GraphicsPath();
+        path.AddPolygon(new[]
         {
-            using var bmp = new Bitmap(size, size, PixelFormat.Format32bppArgb);
-            using (var g = Graphics.FromImage(bmp))
+            new PointF(25f, 58f),
+            new PointF(39f, 36f),
+            new PointF(49f, 48f),
+            new PointF(56f, 40f),
+            new PointF(71f, 58f),
+        });
+        return path;
+    }
+
+    /// <summary>
+    /// マークを描く。呼び出し側で 96x96 の座標系に変換しておくこと。
+    /// 描画順は docs/ICON.md と対応している。
+    /// </summary>
+    public static void Draw(Graphics g)
+    {
+        using (var ink = new SolidBrush(Ink))
+        using (var water = new SolidBrush(Water))
+        using (var sakura = new SolidBrush(PaleSakura))
+        {
+            // 1. プレート
+            using (var path = RoundedRect(new RectangleF(0f, 0f, Grid, Grid), PlateRadius))
+                g.FillPath(ink, path);
+
+            // 2. 縁のキーライン
+            using (var path = RoundedRect(
+                new RectangleF(RimInset, RimInset, Grid - RimInset * 2f, Grid - RimInset * 2f),
+                RimRadius))
+            using (var pen = new Pen(Rim, RimWidth))
+                g.DrawPath(pen, path);
+
+            // 3. 写真カード
+            using (var path = RoundedRect(Card, CardRadius))
+                g.FillPath(water, path);
+
+            // 4. 太陽
+            g.FillEllipse(ink,
+                SunCenter.X - SunRadius, SunCenter.Y - SunRadius,
+                SunRadius * 2f, SunRadius * 2f);
+
+            // 5. 山
+            using (var path = Mountain())
+                g.FillPath(ink, path);
+
+            // 6. バッジの逃げ（地色）
+            using (var path = RoundedRect(BadgeGap, BadgeGapRadius))
+                g.FillPath(ink, path);
+
+            // 7. メモのバッジ
+            using (var path = RoundedRect(Badge, BadgeRadius))
+                g.FillPath(sakura, path);
+
+            // 8. メモの行
+            using (var pen = new Pen(Ink, MemoLineWidth)
             {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
-                // 16x16でR4相当の角丸 + 左上=水色→右下=桜色のグラデーション
-                float radius = Math.Max(2f, size * 3.5f / 16f);
-                var rect = new RectangleF(0, 0, size, size);
-                using var path = RoundedRect(rect, radius);
-                using var brush = new LinearGradientBrush(
-                    new PointF(0, 0), new PointF(size, size), blue, pink);
-                g.FillPath(brush, path);
-
-                // 絵柄を少し内側に、縦横比を保って中央配置
-                float margin = size * 0.06f;
-                float avail = size - margin * 2;
-                float scale = Math.Min(avail / bounds.Width, avail / bounds.Height);
-                float dw = bounds.Width * scale, dh = bounds.Height * scale;
-                g.DrawImage(cut,
-                    new RectangleF((size - dw) / 2f, (size - dh) / 2f, dw, dh),
-                    bounds, GraphicsUnit.Pixel);
+                StartCap = LineCap.Round,
+                EndCap = LineCap.Round,
+            })
+            {
+                g.DrawLine(pen, 51f, 58f, 75f, 58f);
+                g.DrawLine(pen, 51f, 66f, 67f, 66f);
             }
-            using var ms = new MemoryStream();
-            bmp.Save(ms, ImageFormat.Png);
-            pngs.Add(ms.ToArray());
-            if (size == 256) File.WriteAllBytes(previewPng, ms.ToArray());
         }
+    }
+}
 
-        using var outFs = File.Create(icoPath);
-        using var bw = new BinaryWriter(outFs);
-        bw.Write((ushort)0); bw.Write((ushort)1); bw.Write((ushort)sizes.Length);
-        int offset = 6 + 16 * sizes.Length;
-        for (int i = 0; i < sizes.Length; i++)
+/// <summary>
+/// <see cref="PhotoNoteMark"/> から .ico と確認用 PNG を書き出す。
+/// 描画そのものは持たない。
+/// </summary>
+public static class IconBuilder
+{
+    /// <summary>
+    /// Windows のシェルが引くサイズ。
+    /// 512 は ICO の仕様上表現できない（ICONDIRENTRY の幅・高さは 1 バイトで、0 が 256 を意味する）。
+    /// </summary>
+    static readonly int[] Sizes = { 16, 24, 32, 48, 64, 128, 256 };
+
+    /// <summary>確認用の合成画像に並べるサイズ。実寸で並べて目視する。</summary>
+    static readonly int[] StripSizes = { 48, 32, 24, 16 };
+
+    /// <summary>各サイズを 96 グリッドから直接ラスタライズする（縮小ではない）。</summary>
+    static Bitmap Render(int size)
+    {
+        var bmp = new Bitmap(size, size, PixelFormat.Format32bppArgb);
+        using (var g = Graphics.FromImage(bmp))
         {
-            int s = sizes[i];
-            bw.Write((byte)(s >= 256 ? 0 : s));
-            bw.Write((byte)(s >= 256 ? 0 : s));
-            bw.Write((byte)0); bw.Write((byte)0);
-            bw.Write((ushort)1); bw.Write((ushort)32);
-            bw.Write((uint)pngs[i].Length); bw.Write((uint)offset);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g.ScaleTransform(size / PhotoNoteMark.Grid, size / PhotoNoteMark.Grid);
+            PhotoNoteMark.Draw(g);
+        }
+        return bmp;
+    }
+
+    /// <summary>
+    /// タスクバー相当の地に実寸で並べた確認用画像。
+    /// 「16px で読めるか」と「暗い地で縁が溶けないか」は、目視しないと分からない。
+    /// </summary>
+    static void WriteStrip(string path, Color background, Dictionary<int, Bitmap> rendered)
+    {
+        const int pad = 24, gap = 28, height = 90;
+        int width = pad * 2;
+        foreach (var s in StripSizes) width += s + gap;
+        width -= gap;
+
+        using var bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+        using (var g = Graphics.FromImage(bmp))
+        {
+            g.Clear(background);
+            int x = pad;
+            foreach (var s in StripSizes)
+            {
+                g.DrawImageUnscaled(rendered[s], x, (height - s) / 2);
+                x += s + gap;
+            }
+        }
+        bmp.Save(path, ImageFormat.Png);
+    }
+
+    static void WriteIco(string icoPath, List<byte[]> pngs)
+    {
+        using var fs = File.Create(icoPath);
+        using var bw = new BinaryWriter(fs);
+
+        // ICONDIR
+        bw.Write((ushort)0);              // reserved
+        bw.Write((ushort)1);              // type: 1 = icon
+        bw.Write((ushort)Sizes.Length);
+
+        // ICONDIRENTRY x n（256 は 1 バイトに収まらないので 0 で表す）
+        int offset = 6 + 16 * Sizes.Length;
+        for (int i = 0; i < Sizes.Length; i++)
+        {
+            int s = Sizes[i];
+            bw.Write((byte)(s >= 256 ? 0 : s));  // width
+            bw.Write((byte)(s >= 256 ? 0 : s));  // height
+            bw.Write((byte)0);                   // パレット色数（true color なので 0）
+            bw.Write((byte)0);                   // reserved
+            bw.Write((ushort)1);                 // color planes
+            bw.Write((ushort)32);                // bits per pixel
+            bw.Write((uint)pngs[i].Length);
+            bw.Write((uint)offset);
             offset += pngs[i].Length;
         }
+
         foreach (var b in pngs) bw.Write(b);
+    }
+
+    /// <summary>
+    /// .ico を <paramref name="icoPath"/> に、確認用 PNG を <paramref name="previewDir"/> に書き出す。
+    /// </summary>
+    public static void Build(string icoPath, string previewDir)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(icoPath))!);
+        Directory.CreateDirectory(previewDir);
+
+        var rendered = new Dictionary<int, Bitmap>();
+        var pngs = new List<byte[]>();
+        try
+        {
+            foreach (var size in Sizes)
+            {
+                var bmp = Render(size);
+                rendered[size] = bmp;
+
+                using var ms = new MemoryStream();
+                bmp.Save(ms, ImageFormat.Png);
+                var bytes = ms.ToArray();
+                pngs.Add(bytes);
+                File.WriteAllBytes(Path.Combine(previewDir, $"icon_{size}.png"), bytes);
+            }
+
+            WriteIco(icoPath, pngs);
+
+            // 暗い / 明るいタスクバー相当。
+            WriteStrip(Path.Combine(previewDir, "icon_on_dark.png"),
+                Color.FromArgb(0x1B, 0x1B, 0x1B), rendered);
+            WriteStrip(Path.Combine(previewDir, "icon_on_light.png"),
+                Color.FromArgb(0xE9, 0xE9, 0xEA), rendered);
+        }
+        finally
+        {
+            foreach (var bmp in rendered.Values) bmp.Dispose();
+        }
     }
 }
