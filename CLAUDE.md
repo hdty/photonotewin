@@ -24,10 +24,10 @@ Windows7 から Windows11 へ移行できるようにすることが動機。
 ## ディレクトリ
 - PhotoNote/      : 本体（WPF アプリ）
 - PhotoNote.Test/ : 検証プログラム（テストフレームワークではなく実行型。後述）
-- assets/         : ロゴ・アイコン素材（HideToysLogo*, photonoteicon01.png）
+- assets/         : ロゴ素材（HideToysLogo*）
 - sample/         : 仕様サンプルPDF（photonotesample01.pdf=印刷結果, 02=編集画面）
 - testphotos/     : テスト用写真（自動生成）
-- testout/        : 出力サンプル・UIスクリーンショット
+- testout/        : 出力サンプル・UIスクリーンショット・アイコンの確認用画像
 - tools/          : アイコン生成・バージョン情報パッチ等の補助ツール
 - docs/           : 詳細仕様。本文からは @docs/SPEC.md で参照
 
@@ -48,6 +48,9 @@ Windows7 から Windows11 へ移行できるようにすることが動機。
 - UIフォントは Meiryo UI を使う（游ゴシック・MS UI ゴシックは使わない）。
 - 保存ファイル .photonote.json の仕様を変える時は、実装（PhotoNote/NoteFile.cs）を正とし、
   docs/SPEC.md と必ず整合させる。
+- アプリアイコンの形状の唯一の定義は tools/IconBuilder.cs の `PhotoNoteMark`（ベクタ）。
+  ブランド色（水色 #A3D8E1 / 薄桜 #E8AFCF / 紺 #13253F）を含め、根拠は @docs/ICON.md にある。
+  ラスタ原画は持たない。SVG のマスタも作らない（下の「公開禁止」と紛らわしくなるため）。
 - exe のバージョン情報: 著作権は「© HidéToys」、会社名（作者）欄は空にする。
 - ビルド成果物（bin/, obj/）は編集・参照しない。
 - 公開禁止: assets/ の SVG ファイルと sample/ の PDF（実在の人物が写っている）。

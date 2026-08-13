@@ -141,7 +141,8 @@ Windows7 の PC を使い続けている。Windows11 環境へ移行させたい
   開発用に `--uishot <写真フォルダ> <出力フォルダ>` で両画面をPNG保存する隠しオプションあり。
 
 ## 補助ツール（tools/）
-- `IconTool/`                  : photonoteicon01.png から角丸グラデーション背景付き .ico を生成。
+- `IconTool/`                  : アプリアイコン（.ico）と確認用 PNG を生成。元画像は使わず、
+  形状は `tools/IconBuilder.cs` の `PhotoNoteMark` がベクタで持つ。設計図は @docs/ICON.md。
 - `Set-JapaneseVersionLang.ps1`: 発行済み exe のバージョン情報の言語をニュートラル→日本語に書き換える
   （.NET の仕様で言語がニュートラル固定になるため、リリース時に実行する）。
 

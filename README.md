@@ -107,11 +107,13 @@ dotnet publish PhotoNote -c Release -r win-x64 --self-contained `
 - `PrintDocumentBuilder` — 印刷ページ(FixedDocument)の組み立て。写真の下に左=メモ、右=撮影日
 - `NoteFile` — `.photonote.json` の読み書き(隠し属性の付け外しを含む)
 - `ImageLoader` — 画像読み込み(EXIF回転の反映、撮影日時の取得)
-- アプリアイコンは `assets/photonoteicon01.png` から `tools/IconTool` で生成
-  (市松背景を除去し、ロゴの水色→桜色の角丸グラデーション背景に合成、16/24/32/48/64/256px)
+- アプリアイコンは `tools/IconTool` で生成する。元画像は要らず、形状は
+  `tools/IconBuilder.cs` の `PhotoNoteMark` がベクタで持つ(16/24/32/48/64/128/256px)。
+  寸法と配色の根拠は [docs/ICON.md](docs/ICON.md)
   ```powershell
-  dotnet run --project tools\IconTool -- assets\photonoteicon01.png PhotoNote\Assets\PhotoNote.ico preview.png
+  dotnet run --project tools\IconTool
   ```
+  確認用に `testout/` へ各サイズの実寸PNGと、明暗のタスクバーに並べた合成画像も出る
 - HidéToysロゴ(`PhotoNote/Assets/HideToysLogo2.png`)はリソースとして埋め込み済みだが、
   通常画面では未使用(将来のヘルプ画面用)
 
