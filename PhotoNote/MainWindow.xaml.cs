@@ -322,7 +322,7 @@ public partial class MainWindow : Window
         _printPhotos = _photos.Where(p => p.Selected).ToList();
         if (_printPhotos.Count == 0)
         {
-            MessageBox.Show(this, "印刷する写真にチェックを付けてください。", "PhotoNote",
+            MessageBox.Show(this, "印刷する写真にチェックを付けてください。", "PhotoNoteWin",
                 MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
@@ -523,12 +523,12 @@ public partial class MainWindow : Window
         try
         {
             var doc = PrintDocumentBuilder.Build(_printPhotos, s, _printImages, paper.WidthMm, paper.HeightMm);
-            dialog.PrintDocument(doc.DocumentPaginator, "PhotoNote");
+            dialog.PrintDocument(doc.DocumentPaginator, "PhotoNoteWin");
             PageCountLabel.Text = "プリンタに送りました";
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, $"印刷できませんでした。\n{ex.Message}", "PhotoNote",
+            MessageBox.Show(this, $"印刷できませんでした。\n{ex.Message}", "PhotoNoteWin",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }

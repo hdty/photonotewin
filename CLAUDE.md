@@ -1,7 +1,9 @@
-# PhotoNote
+# PhotoNoteWin
 
 ## 概要
 高齢の利用者（作者の父・後期高齢者）が、デジカメ写真を簡単に印刷するための Windows アプリ。
+（旧称 PhotoNote。同名スマホアプリとの区別のため改名。表示名・exe名のみ変更し、
+　名前空間 `PhotoNote`・フォルダ名・データファイル `.photonote.json` は据え置き）
 Windows7 から Windows11 へ移行できるようにすることが動機。
 フォルダ内の写真を一覧表示し、各写真にテキストを書き込み、
 用紙サイズ・1枚あたりの写真枚数・レイアウトを選んで、
@@ -14,7 +16,7 @@ Windows7 から Windows11 へ移行できるようにすることが動機。
 - 最優先方針: とにかく簡単に。高齢者が迷わず使えるUIを最優先する。
 
 ## 公開・配布
-- GitHub: https://github.com/hdty/photonote （公開リポジトリ、アカウント hdty）
+- GitHub: https://github.com/hdty/photonotewin （公開リポジトリ、アカウント hdty）
 - ライセンス: ソースコードは MIT。ただし画像（ロゴ・アプリアイコン等）は MIT 対象外で
   著作権は HidéToys が保持する（詳細は LICENSE 末尾の注記）。
 - 配布: GitHub Releases に単一ファイル exe を添付する（リポジトリ本体に exe は入れない）。
@@ -38,7 +40,7 @@ Windows7 から Windows11 へ移行できるようにすることが動機。
   ```powershell
   dotnet publish PhotoNote -c Release -r win-x64 --self-contained `
     -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
-  .\tools\Set-JapaneseVersionLang.ps1 PhotoNote\bin\Release\net8.0-windows\win-x64\publish\PhotoNote.exe
+  .\tools\Set-JapaneseVersionLang.ps1 PhotoNote\bin\Release\net8.0-windows\win-x64\publish\PhotoNoteWin.exe
   ```
 
 ## ルール

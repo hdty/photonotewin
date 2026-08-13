@@ -1,4 +1,4 @@
-# PhotoNote 仕様書（SPEC）
+# PhotoNoteWin 仕様書（SPEC）
 
 ## 背景・目的
 後期高齢者の父親が、デジカメで撮った写真を印刷するのに簡単なソフトが無く、
@@ -14,9 +14,10 @@ Windows7 の PC を使い続けている。Windows11 環境へ移行させたい
 - 配布: .NET ランタイム同梱の単一ファイル exe（インストール不要）
 
 ## 名称・ブランド
-- プログラム名: PhotoNote
+- プログラム名: PhotoNoteWin（旧称 PhotoNote。同名スマホアプリとの区別のため改名）。
+  表示名・exe名のみ変更し、名前空間・フォルダ名・データファイル `.photonote.json` は据え置き。
 - サークル: HidéToys（ヒデトイズ）名義で公開。
-- 公開先: https://github.com/hdty/photonote （MIT、画像は対象外）。
+- 公開先: https://github.com/hdty/photonotewin （MIT、画像は対象外）。
 
 ## 機能要件
 

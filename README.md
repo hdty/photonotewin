@@ -1,11 +1,13 @@
-# PhotoNote
+# PhotoNoteWin
 
 デジカメ写真にひとことメモを付けて、メモと撮影日入りで印刷するWindows用ソフト。
 ヒデトイズ HidéToys
 
+> 旧称は「PhotoNote」。同名のスマホアプリと区別するため PhotoNoteWin に改名しました。
+
 ## ダウンロード
 
-[Releases](https://github.com/hdty/photonote/releases) から `PhotoNote.exe` をダウンロードしてください。
+[Releases](https://github.com/hdty/photonotewin/releases) から `PhotoNoteWin.exe` をダウンロードしてください。
 インストール不要で、そのまま実行できます。
 
 ※ コード署名をしていないため、初回起動時に SmartScreen の警告が出ることがあります。
@@ -92,7 +94,8 @@ dotnet publish PhotoNote -c Release -r win-x64 --self-contained `
   -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
 ```
 
-出力: `PhotoNote\bin\Release\net8.0-windows\win-x64\publish\PhotoNote.exe`
+出力: `PhotoNote\bin\Release\net8.0-windows\win-x64\publish\PhotoNoteWin.exe`
+（プロジェクトフォルダ名は `PhotoNote` のままだが、exe 名は `PhotoNoteWin.exe`）
 
 ## 構成
 
@@ -114,7 +117,7 @@ dotnet publish PhotoNote -c Release -r win-x64 --self-contained `
 ## 開発用オプション
 
 ```powershell
-PhotoNote.exe --uishot <写真フォルダ> <出力フォルダ>
+PhotoNoteWin.exe --uishot <写真フォルダ> <出力フォルダ>
 ```
 
 起動して写真フォルダを読み込み、写真選び画面と印刷画面をPNGに保存して終了する(UI確認用)。
@@ -125,7 +128,7 @@ PhotoNote.exe --uishot <写真フォルダ> <出力フォルダ>
 dotnet publish PhotoNote -c Release -r win-x64 --self-contained `
   -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
 # バージョン情報の言語欄を「日本語」にする(.NETの仕様でニュートラルになるため)
-.\tools\Set-JapaneseVersionLang.ps1 PhotoNote\bin\Release\net8.0-windows\win-x64\publish\PhotoNote.exe
+.\tools\Set-JapaneseVersionLang.ps1 PhotoNote\bin\Release\net8.0-windows\win-x64\publish\PhotoNoteWin.exe
 ```
 
 ## ライセンス
