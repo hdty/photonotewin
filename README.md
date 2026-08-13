@@ -10,8 +10,9 @@
 [Releases](https://github.com/hdty/photonotewin/releases) から `PhotoNoteWin.exe` をダウンロードしてください。
 インストール不要で、そのまま実行できます。
 
-※ コード署名をしていないため、初回起動時に SmartScreen の警告が出ることがあります。
-「詳細情報」→「実行」で起動できます。
+※ [SignPath Foundation](https://signpath.org/) の証明書でコード署名しています（下記
+「Code signing policy」参照）。配布実績が少ないうちは、初回起動時に SmartScreen の警告が
+出ることがあります。その場合は「詳細情報」→「実行」で起動できます。
 
 ## 動作環境
 
@@ -130,6 +131,22 @@ dotnet publish PhotoNote -c Release -r win-x64 --self-contained `
 # バージョン情報の言語欄を「日本語」にする(.NETの仕様でニュートラルになるため)
 .\tools\Set-JapaneseVersionLang.ps1 PhotoNote\bin\Release\net8.0-windows\win-x64\publish\PhotoNoteWin.exe
 ```
+
+## Code signing policy
+
+配布用の `PhotoNoteWin.exe` は、[SignPath Foundation](https://signpath.org/) から
+無償提供された証明書を用いてコード署名しています。
+
+- 署名対象は GitHub Actions（`.github/workflows/release.yml`）でビルドした成果物のみです。
+  ローカルでビルドした未署名の exe は配布しません。
+- リリースは、リポジトリ管理者（hdty）がタグを付けたときにのみビルド・署名されます。
+- 証明書の所有者・発行者: SignPath Foundation（このプロジェクトは Foundation の
+  OSS 向け無償コード署名プログラムを利用しています）。
+
+Committers and reviewers: [Members](https://github.com/hdty/photonotewin/graphs/contributors)
+
+Privacy policy: このプログラムは利用者の情報を収集・送信しません。
+写真フォルダ内の `.photonote.json`（キャプションと印刷設定）以外にデータを保存しません。
 
 ## ライセンス
 

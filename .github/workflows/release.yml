@@ -1,0 +1,80 @@
+# タグ(v*)を push すると、CI で単一ファイル exe をビルドし、
+# SignPath Foundation で署名して GitHub Release に添付する。
+#
+# 事前に SignPath 側で以下を用意しておくこと（README「Code signing policy」参照）:
+#   - Organization / Project(slug=photonotewin) / Signing policy(slug=release-signing)
+#   - Artifact configuration: zip 内の PhotoNoteWin.exe を Authenticode 署名する設定
+#   - GitHub App(SignPath)をリポジトリにインストール
+# GitHub 側に登録しておくもの:
+#   - secret : SIGNPATH_API_TOKEN        (署名権限を持つユーザーの API トークン)
+#   - variable: SIGNPATH_ORGANIZATION_ID (SignPath の Organization ID)
+
+name: release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:   # 手動実行での署名テスト用
+
+permissions:
+  contents: write      # Release の作成・アセット添付
+  actions: read        # SignPath が成果物の出所を検証するため
+
+env:
+  PUBLISH_DIR: PhotoNote/bin/Release/net8.0-windows/win-x64/publish
+  EXE_NAME: PhotoNoteWin.exe
+
+jobs:
+  build-sign-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish single-file exe
+        run: >
+          dotnet publish PhotoNote -c Release -r win-x64 --self-contained
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+
+      - name: Set version info language to Japanese
+        run: ./tools/Set-JapaneseVersionLang.ps1 -ExePath "$env:PUBLISH_DIR/$env:EXE_NAME"
+
+      # SignPath は「アップロードされた成果物(zip)」を取り込んで署名する。
+      # upload-artifact は中身を zip 化するので、SignPath 側の Artifact configuration は
+      # 「zip の中の PhotoNoteWin.exe を署名する」設定にしておくこと。
+      - name: Upload unsigned artifact
+        id: upload-unsigned
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhotoNoteWin-unsigned
+          path: ${{ env.PUBLISH_DIR }}/${{ env.EXE_NAME }}
+          if-no-files-found: error
+
+      - name: Submit signing request to SignPath
+        uses: signpath/github-action-submit-signing-request@v2
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: photonotewin
+          signing-policy-slug: release-signing
+          github-artifact-id: ${{ steps.upload-unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: signed
+
+      - name: Upload signed artifact (for inspection)
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhotoNoteWin-signed
+          path: signed/${{ env.EXE_NAME }}
+          if-no-files-found: error
+
+      # タグ push のときだけ Release を作成し、署名済み exe を添付する
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: signed/${{ env.EXE_NAME }}
+          generate_release_notes: true
