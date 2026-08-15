@@ -136,19 +136,29 @@ dotnet publish PhotoNote -c Release -r win-x64 --self-contained `
 
 ## Code signing policy
 
-配布用の `PhotoNoteWin.exe` は、[SignPath Foundation](https://signpath.org/) から
-無償提供された証明書を用いてコード署名しています。
+Free code signing provided by [SignPath.io](https://signpath.io/), certificate by
+[SignPath Foundation](https://signpath.org/).
 
-- 署名対象は GitHub Actions（`.github/workflows/release.yml`）でビルドした成果物のみです。
-  ローカルでビルドした未署名の exe は配布しません。
-- リリースは、リポジトリ管理者（hdty）がタグを付けたときにのみビルド・署名されます。
-- 証明書の所有者・発行者: SignPath Foundation（このプロジェクトは Foundation の
-  OSS 向け無償コード署名プログラムを利用しています）。
+配布用の `PhotoNoteWin.exe` は上記の無償提供による証明書で署名しています。
 
-Committers and reviewers: [Members](https://github.com/hdty/photonotewin/graphs/contributors)
+- 署名対象は GitHub Actions（[`.github/workflows/release.yml`](.github/workflows/release.yml)）で
+  ビルドした成果物のみです。ローカルでビルドした未署名の exe は配布しません。
+- リリースは、リポジトリ管理者がタグ（`v*`）を付けたときにのみビルド・署名されます。
 
-Privacy policy: このプログラムは利用者の情報を収集・送信しません。
-写真フォルダ内の `.photonote.json`（キャプションと印刷設定）以外にデータを保存しません。
+**Roles**
+
+- Committers and reviewers: [hdty](https://github.com/hdty)（単独の開発者。
+  すべての変更を本人がレビューし、コミットします）
+- Approvers: [hdty](https://github.com/hdty)（すべての署名リクエストを本人が承認します）
+
+**Privacy policy**
+
+このプログラムは利用者の個人情報を一切収集・送信しません。
+ネットワーク通信は行わず、データの保存先は利用者が選んだ写真フォルダ内の
+`.photonote.json`（キャプションと印刷設定）のみです。
+
+This program will not transfer any information to other networked systems unless
+specifically requested by the user or the person installing or operating it.
 
 ## ライセンス
 
