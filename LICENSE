@@ -19,17 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-画像ファイルについての注記 (Note on image assets):
-
-このライセンスはソースコードに適用されます。リポジトリに含まれる画像
-(HidéToysのロゴ、アプリアイコンなど assets/ および PhotoNote/Assets/ 配下の
-画像ファイル)は MIT ライセンスの対象外であり、著作権は HidéToys が保持します。
-これらの画像の再利用・再配布には別途許諾が必要です。
-
-The MIT License above applies to the source code. Image files in this
-repository (the HidéToys logo, application icon, and other images under
-assets/ and PhotoNote/Assets/) are NOT covered by the MIT License; all
-rights are reserved by HidéToys.

@@ -114,8 +114,8 @@ dotnet publish PhotoNote -c Release -r win-x64 --self-contained `
   dotnet run --project tools\IconTool
   ```
   確認用に `testout/` へ各サイズの実寸PNGと、明暗のタスクバーに並べた合成画像も出る
-- HidéToysロゴ(`PhotoNote/Assets/HideToysLogo2.png`)はリソースとして埋め込み済みだが、
-  通常画面では未使用(将来のヘルプ画面用)
+- リポジトリに置く画像はビルドに必要な `PhotoNote/Assets/PhotoNote.ico` だけ。
+  それも `tools/IconTool` で再生成できる(形状の定義はコード側にある)
 
 ## 開発用オプション
 
@@ -162,6 +162,8 @@ specifically requested by the user or the person installing or operating it.
 
 ## ライセンス
 
-ソースコードは [MIT License](LICENSE)。
-ただし、リポジトリ内の画像(HidéToysロゴ・アプリアイコンなど)はMITの対象外で、
-著作権は HidéToys が保持します(詳細は LICENSE 末尾の注記を参照)。
+[MIT License](LICENSE)。リポジトリの内容はすべて MIT で利用できます。
+
+なお「HidéToys」はサークル名です。ソフトウェアの利用・改変・再配布は MIT の
+条件で自由に行えますが、派生物があたかも HidéToys 公式であるかのように
+サークル名を表示することはご遠慮ください。

@@ -21,7 +21,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Resource Include="Assets\HideToysLogo2.png" />
     <Resource Include="Assets\PhotoNote.ico" />
   </ItemGroup>
 

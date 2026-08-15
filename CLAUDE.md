@@ -17,14 +17,18 @@ Windows7 から Windows11 へ移行できるようにすることが動機。
 
 ## 公開・配布
 - GitHub: https://github.com/hdty/photonotewin （公開リポジトリ、アカウント hdty）
-- ライセンス: ソースコードは MIT。ただし画像（ロゴ・アプリアイコン等）は MIT 対象外で
-  著作権は HidéToys が保持する（詳細は LICENSE 末尾の注記）。
+- ライセンス: 純粋な MIT（例外なし）。SignPath Foundation のコード署名が
+  「OSI 承認ライセンス」を条件とし、GitHub にも MIT と判定させる必要があるため、
+  リポジトリには MIT で配れるものだけを置く。
 - 配布: GitHub Releases に単一ファイル exe を添付する（リポジトリ本体に exe は入れない）。
+- コード署名: SignPath Foundation に申請中。CI（.github/workflows/release.yml）で
+  タグ push 時にビルド → 言語パッチ → 署名 → Release 添付まで行う。
+  README の「Code signing policy」節は Foundation の要件なので消さない。
 
 ## ディレクトリ
 - PhotoNote/      : 本体（WPF アプリ）
 - PhotoNote.Test/ : 検証プログラム（テストフレームワークではなく実行型。後述）
-- assets/         : ロゴ素材（HideToysLogo*）
+- assets/         : ロゴの SVG マスタ（非公開。.gitignore 対象でリポジトリには入れない）
 - sample/         : 仕様サンプルPDF（photonotesample01.pdf=印刷結果, 02=編集画面）
 - testphotos/     : テスト用写真（自動生成）
 - testout/        : 出力サンプル・UIスクリーンショット・アイコンの確認用画像
@@ -53,5 +57,8 @@ Windows7 から Windows11 へ移行できるようにすることが動機。
   ラスタ原画は持たない。SVG のマスタも作らない（下の「公開禁止」と紛らわしくなるため）。
 - exe のバージョン情報: 著作権は「© HidéToys」、会社名（作者）欄は空にする。
 - ビルド成果物（bin/, obj/）は編集・参照しない。
-- 公開禁止: assets/ の SVG ファイルと sample/ の PDF（実在の人物が写っている）。
+- リポジトリに置く画像は、ビルドに必要な PhotoNote/Assets/PhotoNote.ico だけにする。
+  ロゴ画像は置かない（純 MIT を保つため。ロゴは HidéToys のサークル名を表すもので、
+  MIT で自由に再配布させたくない）。
+- 公開禁止: assets/ の SVG（ロゴのマスタ）と sample/ の PDF（実在の人物が写っている）。
   いずれも .gitignore で除外済み。push 前に `git ls-tree -r origin/main` で混入がないか確認する。
