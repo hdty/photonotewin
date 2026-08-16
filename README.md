@@ -10,9 +10,14 @@
 [Releases](https://github.com/hdty/photonotewin/releases) から `PhotoNoteWin.exe` をダウンロードしてください。
 インストール不要で、そのまま実行できます。
 
-※ [SignPath Foundation](https://signpath.org/) の証明書でコード署名しています（下記
-「Code signing policy」参照）。配布実績が少ないうちは、初回起動時に SmartScreen の警告が
-出ることがあります。その場合は「詳細情報」→「実行」で起動できます。
+> **現在配布している exe はコード署名をしていません。**
+> そのため初回起動時に SmartScreen の警告（「WindowsによってPCが保護されました」）が出ます。
+> 配布元がこのリポジトリの Releases であることを確認したうえで、
+> 「詳細情報」→「実行」で起動してください。
+>
+> コード署名は [SignPath Foundation](https://signpath.org/) の無償プログラムに申請中です
+> （下記「Code signing policy」参照）。署名付きの exe を配布できるようになった時点で、
+> この記載を更新します。
 
 ## 動作環境
 
@@ -136,14 +141,18 @@ dotnet publish PhotoNote -c Release -r win-x64 --self-contained `
 
 ## Code signing policy
 
-Free code signing provided by [SignPath.io](https://signpath.io/), certificate by
-[SignPath Foundation](https://signpath.org/).
+**現在の状態: 未署名。** [SignPath Foundation](https://signpath.org/) の無償コード署名
+プログラムに申請中で、**承認されるまでのリリース（v0.2.0 を含む）は署名されていません。**
 
-配布用の `PhotoNoteWin.exe` は上記の無償提供による証明書で署名しています。
+承認後は、以下のポリシーで署名する予定です。
 
-- 署名対象は GitHub Actions（[`.github/workflows/release.yml`](.github/workflows/release.yml)）で
-  ビルドした成果物のみです。ローカルでビルドした未署名の exe は配布しません。
+Free code signing **will be** provided by [SignPath.io](https://signpath.io/),
+certificate by [SignPath Foundation](https://signpath.org/).
+
+- 署名の対象は GitHub Actions（[`.github/workflows/release.yml`](.github/workflows/release.yml)）で
+  ビルドした成果物のみとします。ローカルでビルドした exe は配布しません。
 - リリースは、リポジトリ管理者がタグ（`v*`）を付けたときにのみビルド・署名されます。
+- 署名付きの配布を開始したら、この節と「ダウンロード」の記載を更新します。
 
 **Roles**
 
