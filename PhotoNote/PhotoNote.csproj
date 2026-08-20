@@ -8,7 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>PhotoNote</RootNamespace>
     <AssemblyName>PhotoNoteWin</AssemblyName>
-    <Version>0.2.0</Version>
+    <Version>0.2.1</Version>
     <Product>PhotoNoteWin</Product>
     <Copyright>© 2026 HidéToys</Copyright>
     <Description>写真にメモを付けて印刷するソフト</Description>
