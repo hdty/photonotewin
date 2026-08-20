@@ -53,7 +53,21 @@ jobs:
           path: ${{ env.PUBLISH_DIR }}/${{ env.EXE_NAME }}
           if-no-files-found: error
 
+      # SignPath は申請中。承認されて secret / variable が入るまでは署名を飛ばす。
+      # （未設定のまま署名ステップを走らせると organization-id が無くて必ず失敗するため）
+      - name: Check SignPath configuration
+        id: signpath
+        shell: bash
+        run: |
+          if [ -n "${{ secrets.SIGNPATH_API_TOKEN }}" ] && [ -n "${{ vars.SIGNPATH_ORGANIZATION_ID }}" ]; then
+            echo 'configured=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'configured=false' >> "$GITHUB_OUTPUT"
+            echo '::notice::SignPath 未設定のため署名をスキップしました（ビルドのみ検証）。'
+          fi
+
       - name: Submit signing request to SignPath
+        if: steps.signpath.outputs.configured == 'true'
         uses: signpath/github-action-submit-signing-request@v2
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
@@ -65,16 +79,17 @@ jobs:
           output-artifact-directory: signed
 
       - name: Upload signed artifact (for inspection)
+        if: steps.signpath.outputs.configured == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: PhotoNoteWin-signed
           path: signed/${{ env.EXE_NAME }}
           if-no-files-found: error
 
-      # タグ push のときだけ Release を作成し、署名済み exe を添付する
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: signed/${{ env.EXE_NAME }}
-          generate_release_notes: true
+      # Release 自体は手元の `gh release create` で作るので、ここでは作らない。
+      # 署名できたときだけ、そのタグの Release の exe を署名済みに差し替える。
+      - name: Replace release asset with the signed exe
+        if: steps.signpath.outputs.configured == 'true' && startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.ref_name }}" "signed/${{ env.EXE_NAME }}" --clobber
